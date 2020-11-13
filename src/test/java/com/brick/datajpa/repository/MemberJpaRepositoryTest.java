@@ -22,6 +22,7 @@ class MemberJpaRepositoryTest {
     @Test
     void testMember() {
         Member member = new Member("memberA");
+        memberJpaRepository.save(member);
         Member savedMember = memberJpaRepository.save(member);
 
         Member findMember = memberJpaRepository.find(savedMember.getId());
