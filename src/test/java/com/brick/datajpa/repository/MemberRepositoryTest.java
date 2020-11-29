@@ -127,6 +127,21 @@ class MemberRepositoryTest {
     for (Member member : result) {
       System.out.println("member = " + member);
     }
+  }
+
+  @Test
+  void returnType() {
+
+    Member member1 = new Member("AAA", 10);
+    Member member2 = new Member("BBB", 10);
+
+    memberRepository.save(member1);
+    memberRepository.save(member2);
+
+//    List<Member> member = memberRepository.findListByUsername("AAA");
+//    Member findMember = memberRepository.findMemberByUsername("AAA");
+//    System.out.println("findMember = " + findMember);
+
 
   }
 
