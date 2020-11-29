@@ -1,6 +1,8 @@
 package com.brick.datajpa.repository;
 
+import com.brick.datajpa.dto.MemberDto;
 import com.brick.datajpa.entity.Member;
+import com.brick.datajpa.entity.Team;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ class MemberRepositoryTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    TeamJpaRepository teamJpaRepository;
 
     @Test
     void testMember() {
@@ -90,6 +95,21 @@ class MemberRepositoryTest {
 
         List<Member> result = memberRepository.findMember("aa", 15);
         assertThat(result.get(0)).isEqualTo(member1);
+    }
+
+    @Test
+    void findMemberDto() {
+        Team team = new Team();
+        teamJpaRepository.save(team);
+
+        Member member = new Member("AAA", 10);
+        member.changeTeam(team);
+        memberRepository.save(member);
+
+        List<MemberDto> memberDto = memberRepository.findMemberDto();
+        for (MemberDto dto : memberDto) {
+            System.out.println("dto = " + dto);
+        }
     }
 
 
