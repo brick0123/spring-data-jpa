@@ -2,11 +2,16 @@ package com.brick.datajpa.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.brick.datajpa.dto.MemberDto;
 import com.brick.datajpa.entity.Member;
 import com.brick.datajpa.entity.Team;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +31,10 @@ class MemberRepositoryTest {
   MemberRepository memberRepository;
 
   @Autowired
-  TeamJpaRepository teamJpaRepository;
+  TeamRepository teamRepository;
+
+  @PersistenceContext
+  EntityManager em;
 
   @Test
   void testMember() {
@@ -102,7 +110,7 @@ class MemberRepositoryTest {
   @Test
   void findMemberDto() {
     Team team = new Team();
-    teamJpaRepository.save(team);
+    teamRepository.save(team);
 
     Member member = new Member("AAA", 10);
     member.changeTeam(team);
@@ -181,4 +189,74 @@ class MemberRepositoryTest {
     assertThat(page.hasNext()).isTrue();
   }
 
+  @Test
+  void bulkUpdate() {
+    // given
+    memberRepository.save(new Member("member1", 10));
+    memberRepository.save(new Member("member2", 14));
+    memberRepository.save(new Member("member3", 20));
+    memberRepository.save(new Member("member4", 21));
+    memberRepository.save(new Member("member5", 22));
+
+    // 영속성 컨텍스트에 있고 아직 db 반영이 안 됨.
+
+    // when
+    int resultCount = memberRepository.bulkAgePlus(20);
+//    em.clear();
+
+    Member member5 = memberRepository.findMemberByUsername("member5");
+    System.out.println("member5 = " + member5);
+
+    // then
+    assertThat(resultCount).isEqualTo(3);
+  }
+
+  @Test
+  void findMemberLazy() {
+    // given
+    // member1 -> teamA
+    // member2 -> teamB
+
+    Team teamA = new Team("teamA");
+    Team teamB = new Team("teamB");
+    teamRepository.save(teamA);
+    teamRepository.save(teamB);
+
+    Member member1 = new Member("member1", 10, teamA);
+    Member member2 = new Member("member2", 10, teamB);
+    memberRepository.save(member1);
+    memberRepository.save(member2);
+    
+    em.flush();
+    em.clear();
+
+    List<Member> members = memberRepository.findAll();
+
+    for (Member member : members) {
+      System.out.println("member.getUsername() = " + member.getUsername());
+      System.out.println("member.team = " + member.getTeam().getName());
+      System.out.println("member = " + member.getUsername());
+    }
+  }
+
+  @Test
+  void queryHint() {
+    System.out.println("before");
+    Member member1 = new Member("member1", 10);
+    memberRepository.save(member1);
+    System.out.println("after");
+    em.flush();
+    em.clear();
+
+//    Member findMember = memberRepository.findById(member1.getId()).get();
+    Member findMember = memberRepository.findReadOnlyByUsername("member1");
+    findMember.changeName("member2");
+
+    em.flush();
+  }
+
+  @Test
+  void callCustom() {
+    List<Member> result = memberRepository.findMemberCustom();
+  }
 }
