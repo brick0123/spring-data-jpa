@@ -9,7 +9,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 // 엔티티는 기본 생성자 필수 접근 제어자는 private은 안 되므로 protected
 @ToString(of = {"id", "username", "age"})
-public class Member {
+public class Member extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "member_id")

@@ -6,7 +6,7 @@ import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class MemberCustomRepositoryImpl implements MemberRepositoryCustom {
+public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 
   private final EntityManager em;
 
